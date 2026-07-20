@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -8,4 +8,19 @@ body,
 #root {
   margin: 0;
   height: 100%;
+}
+
+/* Letterbox: fills the window; the canvas centers inside it. */
+.game-viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b0b12;
+}
+
+/* Keep upscaled pixels sharp (CSS scaling and fractional devicePixelRatio). */
+.game-canvas {
+  image-rendering: pixelated;
 }
