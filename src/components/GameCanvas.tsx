@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react'
+import { hubRoom } from '../content/rooms'
+import { isWalkableTile, TILE_SIZE, TILES } from '../content/tiles'
+import { moveBox } from '../game/collision'
 import { createKeyboardInput } from '../game/input'
 import { createGameLoop } from '../game/loop'
-import { stepPlayer, type PlayerState } from '../game/movement'
+import { computeStep, type PlayerState } from '../game/movement'
 import {
   INTERNAL_HEIGHT,
   INTERNAL_WIDTH,
@@ -10,12 +13,9 @@ import {
   render,
 } from '../game/render'
 
-const PLAYER_BOUNDS = {
-  minX: 0,
-  minY: 0,
-  maxX: INTERNAL_WIDTH - PLAYER_WIDTH,
-  maxY: INTERNAL_HEIGHT - PLAYER_HEIGHT,
-}
+const TILE_COLORS = Object.fromEntries(
+  Object.entries(TILES).map(([id, def]) => [id, def.color]),
+)
 
 /**
  * Owns the canvas element and the game loop. The canvas has a fixed internal
@@ -48,9 +48,10 @@ export function GameCanvas() {
     applyIntegerScale()
     window.addEventListener('resize', applyIntegerScale)
 
+    const room = hubRoom
     let player: PlayerState = {
-      x: (INTERNAL_WIDTH - PLAYER_WIDTH) / 2,
-      y: (INTERNAL_HEIGHT - PLAYER_HEIGHT) / 2,
+      x: room.spawn.gridX * TILE_SIZE + (TILE_SIZE - PLAYER_WIDTH) / 2,
+      y: room.spawn.gridY * TILE_SIZE + (TILE_SIZE - PLAYER_HEIGHT) / 2,
       facing: 'down',
     }
 
@@ -58,8 +59,22 @@ export function GameCanvas() {
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
-      player = stepPlayer(player, input.snapshot(), deltaSeconds, PLAYER_BOUNDS)
-      render(ctx, player)
+      const step = computeStep(input.snapshot(), player.facing, deltaSeconds)
+      const position = moveBox(
+        room.tiles,
+        isWalkableTile,
+        TILE_SIZE,
+        { x: player.x, y: player.y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT },
+        step.dx,
+        step.dy,
+      )
+      player = { ...position, facing: step.facing }
+      render(ctx, {
+        tiles: room.tiles,
+        tileSize: TILE_SIZE,
+        tileColors: TILE_COLORS,
+        player,
+      })
     })
     loop.start()
 
