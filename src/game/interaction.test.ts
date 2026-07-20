@@ -4,7 +4,7 @@ import { findInteractable, type InteractionBox } from './interaction'
 const TS = 16
 
 const desk: RoomObject = { id: 'desk', kind: 'card', gridX: 5, gridY: 2, cardId: 'c1' }
-const door: RoomObject = { id: 'door', kind: 'door', gridX: 3, gridY: 2, doorTarget: 'hub' }
+const door: RoomObject = { id: 'door', kind: 'door', gridX: 3, gridY: 2, doorTarget: 'hub', label: 'Door' }
 const objects = [desk, door]
 
 // Player box whose center lies in the given grid cell.

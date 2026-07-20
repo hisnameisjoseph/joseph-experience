@@ -36,6 +36,8 @@ export interface CardObject extends RoomObjectBase {
 export interface DoorObject extends RoomObjectBase {
   kind: 'door'
   doorTarget: RoomId
+  /** Plaque text shown when the player faces the door. */
+  label: string
 }
 
 export type RoomObject = CardObject | DoorObject

@@ -1,11 +1,18 @@
 import { useEffect, useRef } from 'react'
-import { hubRoom } from '../content/rooms'
+import { getRoom, hubRoom } from '../content/rooms'
 import { isWalkableTile, TILE_SIZE, TILES } from '../content/tiles'
+import type { RoomData } from '../content/types'
 import { moveBox } from '../game/collision'
 import { createKeyboardInput } from '../game/input'
 import { findInteractable } from '../game/interaction'
 import { createGameLoop } from '../game/loop'
 import { computeStep, type PlayerState } from '../game/movement'
+import {
+  advanceTransition,
+  IDLE_TRANSITION,
+  startTransition,
+  type TransitionState,
+} from '../game/transition'
 import { useGameStore } from '../store'
 import {
   INTERNAL_HEIGHT,
@@ -50,21 +57,37 @@ export function GameCanvas() {
     applyIntegerScale()
     window.addEventListener('resize', applyIntegerScale)
 
-    const room = hubRoom
-    let player: PlayerState = {
-      x: room.spawn.gridX * TILE_SIZE + (TILE_SIZE - PLAYER_WIDTH) / 2,
-      y: room.spawn.gridY * TILE_SIZE + (TILE_SIZE - PLAYER_HEIGHT) / 2,
+    const spawnPlayer = (r: RoomData): PlayerState => ({
+      x: r.spawn.gridX * TILE_SIZE + (TILE_SIZE - PLAYER_WIDTH) / 2,
+      y: r.spawn.gridY * TILE_SIZE + (TILE_SIZE - PLAYER_HEIGHT) / 2,
       facing: 'down',
-    }
+    })
+
+    let room = getRoom(useGameStore.getState().currentRoomId) ?? hubRoom
+    let player = spawnPlayer(room)
+    let transition: TransitionState = IDLE_TRANSITION
 
     const input = createKeyboardInput()
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
       const store = useGameStore.getState()
-      let hint: { gridX: number; gridY: number } | null = null
+      let hint: { gridX: number; gridY: number; label?: string } | null = null
 
-      if (store.paused) {
+      if (transition.phase !== 'idle') {
+        // The world is frozen during a fade; the room swaps at full black.
+        input.consumeInteract()
+        const result = advanceTransition(transition, deltaSeconds)
+        transition = result.state
+        if (result.roomChange !== null) {
+          const next = getRoom(result.roomChange)
+          if (next) {
+            room = next
+            player = spawnPlayer(next)
+            store.setRoom(result.roomChange)
+          }
+        }
+      } else if (store.paused) {
         // Drain E presses so a press made while the card is open does not
         // fire the moment it closes.
         input.consumeInteract()
@@ -88,6 +111,9 @@ export function GameCanvas() {
         if (target?.kind === 'card') {
           hint = { gridX: target.gridX, gridY: target.gridY }
           if (input.consumeInteract()) store.openCard(target.cardId)
+        } else if (target?.kind === 'door' && getRoom(target.doorTarget)) {
+          hint = { gridX: target.gridX, gridY: target.gridY, label: target.label }
+          if (input.consumeInteract()) transition = startTransition(target.doorTarget)
         } else {
           input.consumeInteract()
         }
@@ -99,6 +125,7 @@ export function GameCanvas() {
         tileColors: TILE_COLORS,
         player,
         hint,
+        fadeAlpha: transition.alpha,
       })
     })
     loop.start()

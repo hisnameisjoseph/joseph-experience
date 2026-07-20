@@ -21,8 +21,10 @@ export interface Scene {
   tileSize: number
   tileColors: Readonly<Record<number, string>>
   player: PlayerState
-  /** Grid cell of the interactable the player faces, if any. */
-  hint: { gridX: number; gridY: number } | null
+  /** Interactable the player faces, if any; label for door plaques. */
+  hint: { gridX: number; gridY: number; label?: string } | null
+  /** Black overlay opacity for room transitions, 0..1. */
+  fadeAlpha: number
 }
 
 export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
@@ -63,24 +65,34 @@ export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
   }
 
   if (scene.hint) {
-    drawHint(ctx, scene.hint.gridX, scene.hint.gridY, scene.tileSize)
+    drawHint(ctx, scene.hint, scene.tileSize)
+  }
+
+  if (scene.fadeAlpha > 0) {
+    ctx.globalAlpha = Math.min(1, scene.fadeAlpha)
+    ctx.fillStyle = '#000000'
+    ctx.fillRect(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT)
+    ctx.globalAlpha = 1
   }
 }
 
-/** Small floating "E" bubble above a grid cell. */
+/** Floating bubble above a grid cell: "E" for plain interactables, the
+ * plaque text for doors. Kept inside the canvas near edges. */
 function drawHint(
   ctx: CanvasRenderingContext2D,
-  gridX: number,
-  gridY: number,
+  hint: { gridX: number; gridY: number; label?: string },
   tileSize: number,
 ): void {
-  const centerX = gridX * tileSize + tileSize / 2
-  const top = Math.max(1, gridY * tileSize - 11)
-  ctx.fillStyle = HINT_BG
-  ctx.fillRect(centerX - 5, top, 10, 9)
-  ctx.fillStyle = HINT_TEXT
+  const text = hint.label ?? 'E'
   ctx.font = '7px monospace'
-  ctx.textAlign = 'center'
+  const width = Math.ceil(ctx.measureText(text).width) + 6
+  const centerX = hint.gridX * tileSize + tileSize / 2
+  const left = Math.min(Math.max(centerX - width / 2, 1), INTERNAL_WIDTH - width - 1)
+  const top = Math.max(1, hint.gridY * tileSize - 11)
+  ctx.fillStyle = HINT_BG
+  ctx.fillRect(left, top, width, 9)
+  ctx.fillStyle = HINT_TEXT
+  ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  ctx.fillText('E', centerX, top + 1)
+  ctx.fillText(text, left + 3, top + 1)
 }

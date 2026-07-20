@@ -1,4 +1,4 @@
-import type { RoomData } from '../types'
+import type { DoorObject, RoomData, RoomId } from '../types'
 import { parseLayout } from './parseLayout'
 
 // 25x14 tiles = 400x224 px. Five doors: two on the top wall, one on each
@@ -20,6 +20,23 @@ const LAYOUT = [
   '###########DD############',
 ] as const
 
+/** One object per door tile so facing either half of a 2-tile door works. */
+function door(
+  id: string,
+  doorTarget: RoomId,
+  label: string,
+  tiles: readonly [number, number][],
+): DoorObject[] {
+  return tiles.map(([gridX, gridY], i) => ({
+    id: `${id}-${i}`,
+    kind: 'door',
+    gridX,
+    gridY,
+    doorTarget,
+    label,
+  }))
+}
+
 export const hubRoom: RoomData = {
   id: 'hub',
   name: 'Home Office',
@@ -27,10 +44,10 @@ export const hubRoom: RoomData = {
   spawn: { gridX: 12, gridY: 7 },
   objects: [
     { id: 'hub-desk', kind: 'card', gridX: 12, gridY: 1, cardId: 'about-me' },
-    { id: 'hub-door-focus-bear', kind: 'door', gridX: 4, gridY: 0, doorTarget: 'focus-bear' },
-    { id: 'hub-door-honours', kind: 'door', gridX: 19, gridY: 0, doorTarget: 'honours-project' },
-    { id: 'hub-door-front-office', kind: 'door', gridX: 0, gridY: 6, doorTarget: 'front-office' },
-    { id: 'hub-door-bartender', kind: 'door', gridX: 24, gridY: 6, doorTarget: 'bartender' },
-    { id: 'hub-door-senior-resident', kind: 'door', gridX: 11, gridY: 13, doorTarget: 'senior-resident' },
+    ...door('hub-door-focus-bear', 'focus-bear', 'Backend Intern — Focus Bear', [[4, 0], [5, 0]]),
+    ...door('hub-door-honours', 'honours-project', 'Honours Project — ANU x Canberra Health Services', [[19, 0], [20, 0]]),
+    ...door('hub-door-front-office', 'front-office', 'Front Office Associate', [[0, 6], [0, 7]]),
+    ...door('hub-door-bartender', 'bartender', 'Bartender', [[24, 6], [24, 7]]),
+    ...door('hub-door-senior-resident', 'senior-resident', 'Senior Resident', [[11, 13], [12, 13]]),
   ],
 }
