@@ -1,2 +1,2 @@
-// Reusable 3D and UI components (Door, InteractableObject, InfoCard, Player).
+// React UI: GameCanvas, InfoCard, StartScreen, TouchControls, RecruiterMode.
 export {}

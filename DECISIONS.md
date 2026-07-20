@@ -1,3 +1,5 @@
 # Decisions
 
 - 2026-07-19: Pinned @react-three/fiber v8 and @react-three/drei v9 (not latest v9/v10) because the newer majors require React 19 and the spec mandates React 18.
+- 2026-07-20: Pivoted to a 2D canvas game per revised spec: removed three/@react-three/fiber/@react-three/drei entirely; game engine will be hand-written Canvas 2D in src/game/ with no rendering library.
+- 2026-07-20: Modeled RoomObject as a discriminated union (kind: 'card' | 'door') so cardId/doorTarget are required exactly when applicable, instead of optional fields on one interface.
