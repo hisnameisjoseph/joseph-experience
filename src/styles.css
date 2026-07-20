@@ -25,10 +25,11 @@ body,
   image-rendering: pixelated;
 }
 
-/* InfoCard overlay */
+/* InfoCard overlay (above touch controls) */
 .card-backdrop {
   position: fixed;
   inset: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,4 +90,72 @@ body,
 .info-card-close:hover,
 .info-card-close:focus-visible {
   background: #3d3450;
+}
+
+/* Touch controls: only on coarse-pointer (touch) devices. */
+.touch-controls {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .touch-controls {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none; /* only the buttons themselves are tappable */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+.dpad {
+  position: absolute;
+  left: calc(12px + env(safe-area-inset-left, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(3, 52px);
+  gap: 2px;
+}
+
+.dpad-btn,
+.action-btn {
+  pointer-events: auto;
+  border: 1px solid rgba(242, 240, 247, 0.35);
+  background: rgba(20, 17, 30, 0.55);
+  color: rgba(242, 240, 247, 0.9);
+  font-size: 18px;
+  border-radius: 10px;
+  touch-action: none;
+}
+
+.dpad-btn:active,
+.action-btn:active {
+  background: rgba(94, 233, 242, 0.35);
+}
+
+.dpad-up {
+  grid-area: 1 / 2;
+}
+.dpad-left {
+  grid-area: 2 / 1;
+}
+.dpad-right {
+  grid-area: 2 / 3;
+}
+.dpad-down {
+  grid-area: 3 / 2;
+}
+
+.action-btn {
+  position: absolute;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 600;
 }

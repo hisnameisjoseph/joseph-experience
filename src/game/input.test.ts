@@ -1,4 +1,4 @@
-import { createKeyboardInput } from './input'
+import { createGameInput } from './input'
 
 function press(code: string): void {
   window.dispatchEvent(new KeyboardEvent('keydown', { code, cancelable: true }))
@@ -8,9 +8,9 @@ function release(code: string): void {
   window.dispatchEvent(new KeyboardEvent('keyup', { code }))
 }
 
-describe('createKeyboardInput', () => {
+describe('createGameInput', () => {
   it('maps WASD and arrows to directions while held', () => {
-    const input = createKeyboardInput()
+    const input = createGameInput()
     input.start()
     press('KeyW')
     press('ArrowRight')
@@ -21,7 +21,7 @@ describe('createKeyboardInput', () => {
   })
 
   it('keeps a direction held while either of its two keys is down', () => {
-    const input = createKeyboardInput()
+    const input = createGameInput()
     input.start()
     press('KeyW')
     press('ArrowUp')
@@ -32,8 +32,8 @@ describe('createKeyboardInput', () => {
     input.stop()
   })
 
-  it('clears all keys when the window loses focus', () => {
-    const input = createKeyboardInput()
+  it('clears keyboard keys when the window loses focus', () => {
+    const input = createGameInput()
     input.start()
     press('KeyA')
     window.dispatchEvent(new Event('blur'))
@@ -42,7 +42,7 @@ describe('createKeyboardInput', () => {
   })
 
   it('ignores events after stop', () => {
-    const input = createKeyboardInput()
+    const input = createGameInput()
     input.start()
     input.stop()
     press('KeyD')
@@ -50,7 +50,7 @@ describe('createKeyboardInput', () => {
   })
 
   it('reports an E press exactly once per consume', () => {
-    const input = createKeyboardInput()
+    const input = createGameInput()
     input.start()
     press('KeyE')
     expect(input.consumeInteract()).toBe(true)
@@ -59,12 +59,40 @@ describe('createKeyboardInput', () => {
   })
 
   it('does not re-trigger interact on key repeat', () => {
-    const input = createKeyboardInput()
+    const input = createGameInput()
     input.start()
     press('KeyE')
     expect(input.consumeInteract()).toBe(true)
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE', repeat: true }))
     expect(input.consumeInteract()).toBe(false)
     input.stop()
+  })
+
+  it('reflects touch directions in the same snapshot', () => {
+    const input = createGameInput()
+    input.setTouchHeld('left', true)
+    expect(input.snapshot()).toEqual({ up: false, down: false, left: true, right: false })
+    input.setTouchHeld('left', false)
+    expect(input.snapshot().left).toBe(false)
+  })
+
+  it('merges touch and keyboard: releasing one keeps the other', () => {
+    const input = createGameInput()
+    input.start()
+    input.setTouchHeld('up', true)
+    press('KeyW')
+    expect(input.snapshot().up).toBe(true)
+    release('KeyW')
+    expect(input.snapshot().up).toBe(true)
+    input.setTouchHeld('up', false)
+    expect(input.snapshot().up).toBe(false)
+    input.stop()
+  })
+
+  it('queues a touch interact press like a keyboard E', () => {
+    const input = createGameInput()
+    input.pressInteract()
+    expect(input.consumeInteract()).toBe(true)
+    expect(input.consumeInteract()).toBe(false)
   })
 })

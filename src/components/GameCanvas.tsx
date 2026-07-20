@@ -3,7 +3,7 @@ import { getRoom, hubRoom } from '../content/rooms'
 import { isWalkableTile, TILE_SIZE, TILES } from '../content/tiles'
 import type { RoomData } from '../content/types'
 import { moveBox } from '../game/collision'
-import { createKeyboardInput } from '../game/input'
+import type { GameInput } from '../game/input'
 import { findInteractable } from '../game/interaction'
 import { createGameLoop } from '../game/loop'
 import { computeStep, type PlayerState } from '../game/movement'
@@ -31,7 +31,7 @@ const TILE_COLORS = Object.fromEntries(
  * resolution; CSS sizes it to the largest integer multiple that fits the
  * window, letterboxed by the viewport's dark background.
  */
-export function GameCanvas() {
+export function GameCanvas({ input }: { input: GameInput }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -67,7 +67,6 @@ export function GameCanvas() {
     let player = spawnPlayer(room)
     let transition: TransitionState = IDLE_TRANSITION
 
-    const input = createKeyboardInput()
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
@@ -135,7 +134,7 @@ export function GameCanvas() {
       input.stop()
       window.removeEventListener('resize', applyIntegerScale)
     }
-  }, [])
+  }, [input])
 
   return (
     <div className="game-viewport">
