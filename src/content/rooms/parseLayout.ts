@@ -1,13 +1,14 @@
-import { TILE_DOOR, TILE_FLOOR, TILE_WALL } from '../tiles'
+import { TILE_DESK, TILE_DOOR, TILE_FLOOR, TILE_WALL } from '../tiles'
 import type { TileId } from '../types'
 
 const CHAR_TO_TILE: Readonly<Record<string, TileId>> = {
   '.': TILE_FLOOR,
   '#': TILE_WALL,
   D: TILE_DOOR,
+  '=': TILE_DESK,
 }
 
-/** Turn ASCII rows ('.' floor, '#' wall, 'D' door) into a tile grid.
+/** Turn ASCII rows ('.' floor, '#' wall, 'D' door, '=' desk) into a tile grid.
  * Throws on unknown characters or ragged rows so layout typos fail loudly. */
 export function parseLayout(rows: readonly string[]): TileId[][] {
   const width = rows[0]?.length ?? 0

@@ -24,3 +24,69 @@ body,
 .game-canvas {
   image-rendering: pixelated;
 }
+
+/* InfoCard overlay */
+.card-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 3, 8, 0.65);
+  padding: 16px;
+}
+
+.info-card {
+  position: relative;
+  max-width: 26rem;
+  padding: 20px 24px;
+  border: 2px solid #5ee9f2;
+  border-radius: 6px;
+  background: #191627;
+  color: #f2f0f7;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.info-card h2 {
+  margin: 0 24px 4px 0;
+  font-size: 20px;
+}
+
+.info-card-skill {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #2b2436;
+  color: #5ee9f2;
+  font-size: 16px;
+}
+
+.info-card p {
+  margin: 0 0 12px;
+}
+
+.info-card-outcome {
+  margin-bottom: 0;
+}
+
+.info-card-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: #2b2436;
+  color: #f2f0f7;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.info-card-close:hover,
+.info-card-close:focus-visible {
+  background: #3d3450;
+}

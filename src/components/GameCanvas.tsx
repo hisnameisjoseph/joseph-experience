@@ -3,8 +3,10 @@ import { hubRoom } from '../content/rooms'
 import { isWalkableTile, TILE_SIZE, TILES } from '../content/tiles'
 import { moveBox } from '../game/collision'
 import { createKeyboardInput } from '../game/input'
+import { findInteractable } from '../game/interaction'
 import { createGameLoop } from '../game/loop'
 import { computeStep, type PlayerState } from '../game/movement'
+import { useGameStore } from '../store'
 import {
   INTERNAL_HEIGHT,
   INTERNAL_WIDTH,
@@ -59,21 +61,44 @@ export function GameCanvas() {
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
-      const step = computeStep(input.snapshot(), player.facing, deltaSeconds)
-      const position = moveBox(
-        room.tiles,
-        isWalkableTile,
-        TILE_SIZE,
-        { x: player.x, y: player.y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT },
-        step.dx,
-        step.dy,
-      )
-      player = { ...position, facing: step.facing }
+      const store = useGameStore.getState()
+      let hint: { gridX: number; gridY: number } | null = null
+
+      if (store.paused) {
+        // Drain E presses so a press made while the card is open does not
+        // fire the moment it closes.
+        input.consumeInteract()
+      } else {
+        const step = computeStep(input.snapshot(), player.facing, deltaSeconds)
+        const position = moveBox(
+          room.tiles,
+          isWalkableTile,
+          TILE_SIZE,
+          { x: player.x, y: player.y, width: PLAYER_WIDTH, height: PLAYER_HEIGHT },
+          step.dx,
+          step.dy,
+        )
+        player = { ...position, facing: step.facing }
+
+        const target = findInteractable(
+          { ...player, width: PLAYER_WIDTH, height: PLAYER_HEIGHT },
+          room.objects,
+          TILE_SIZE,
+        )
+        if (target?.kind === 'card') {
+          hint = { gridX: target.gridX, gridY: target.gridY }
+          if (input.consumeInteract()) store.openCard(target.cardId)
+        } else {
+          input.consumeInteract()
+        }
+      }
+
       render(ctx, {
         tiles: room.tiles,
         tileSize: TILE_SIZE,
         tileColors: TILE_COLORS,
         player,
+        hint,
       })
     })
     loop.start()

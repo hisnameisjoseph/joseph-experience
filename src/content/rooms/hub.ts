@@ -5,7 +5,7 @@ import { parseLayout } from './parseLayout'
 // side wall, one on the bottom wall.
 const LAYOUT = [
   '####DD#############DD####',
-  '#.......................#',
+  '#...........=...........#',
   '#.......................#',
   '#.......................#',
   '#.......................#',
@@ -26,6 +26,7 @@ export const hubRoom: RoomData = {
   tiles: parseLayout(LAYOUT),
   spawn: { gridX: 12, gridY: 7 },
   objects: [
+    { id: 'hub-desk', kind: 'card', gridX: 12, gridY: 1, cardId: 'about-me' },
     { id: 'hub-door-focus-bear', kind: 'door', gridX: 4, gridY: 0, doorTarget: 'focus-bear' },
     { id: 'hub-door-honours', kind: 'door', gridX: 19, gridY: 0, doorTarget: 'honours-project' },
     { id: 'hub-door-front-office', kind: 'door', gridX: 0, gridY: 6, doorTarget: 'front-office' },

@@ -13,11 +13,16 @@ const PLAYER_COLOR = '#5ee9f2'
 const FACING_COLOR = '#1c5b66'
 const FACING_THICKNESS = 3
 
+const HINT_BG = '#12101a'
+const HINT_TEXT = '#f2f0f7'
+
 export interface Scene {
   tiles: readonly (readonly TileId[])[]
   tileSize: number
   tileColors: Readonly<Record<number, string>>
   player: PlayerState
+  /** Grid cell of the interactable the player faces, if any. */
+  hint: { gridX: number; gridY: number } | null
 }
 
 export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
@@ -56,4 +61,26 @@ export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
       ctx.fillRect(x + PLAYER_WIDTH - FACING_THICKNESS, y, FACING_THICKNESS, PLAYER_HEIGHT)
       break
   }
+
+  if (scene.hint) {
+    drawHint(ctx, scene.hint.gridX, scene.hint.gridY, scene.tileSize)
+  }
+}
+
+/** Small floating "E" bubble above a grid cell. */
+function drawHint(
+  ctx: CanvasRenderingContext2D,
+  gridX: number,
+  gridY: number,
+  tileSize: number,
+): void {
+  const centerX = gridX * tileSize + tileSize / 2
+  const top = Math.max(1, gridY * tileSize - 11)
+  ctx.fillStyle = HINT_BG
+  ctx.fillRect(centerX - 5, top, 10, 9)
+  ctx.fillStyle = HINT_TEXT
+  ctx.font = '7px monospace'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+  ctx.fillText('E', centerX, top + 1)
 }

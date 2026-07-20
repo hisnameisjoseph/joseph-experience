@@ -1,2 +1,1 @@
-// Zustand stores (current room, active card, settings).
-export {}
+export { useGameStore } from './gameStore'

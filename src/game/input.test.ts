@@ -48,4 +48,23 @@ describe('createKeyboardInput', () => {
     press('KeyD')
     expect(input.snapshot().right).toBe(false)
   })
+
+  it('reports an E press exactly once per consume', () => {
+    const input = createKeyboardInput()
+    input.start()
+    press('KeyE')
+    expect(input.consumeInteract()).toBe(true)
+    expect(input.consumeInteract()).toBe(false)
+    input.stop()
+  })
+
+  it('does not re-trigger interact on key repeat', () => {
+    const input = createKeyboardInput()
+    input.start()
+    press('KeyE')
+    expect(input.consumeInteract()).toBe(true)
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE', repeat: true }))
+    expect(input.consumeInteract()).toBe(false)
+    input.stop()
+  })
 })

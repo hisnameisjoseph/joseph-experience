@@ -6,6 +6,7 @@ export const TILE_SIZE = 16
 export const TILE_FLOOR: TileId = 0
 export const TILE_WALL: TileId = 1
 export const TILE_DOOR: TileId = 2
+export const TILE_DESK: TileId = 3
 
 export interface TileDef {
   color: string
@@ -18,6 +19,7 @@ export const TILES: Readonly<Record<number, TileDef>> = {
   [TILE_WALL]: { color: '#2b2436', walkable: false },
   // Doors stay solid until room transitions exist.
   [TILE_DOOR]: { color: '#c9973f', walkable: false },
+  [TILE_DESK]: { color: '#9b7e4e', walkable: false },
 }
 
 export function isWalkableTile(id: TileId): boolean {
