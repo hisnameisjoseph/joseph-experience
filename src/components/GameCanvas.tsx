@@ -1,6 +1,21 @@
 import { useEffect, useRef } from 'react'
+import { createKeyboardInput } from '../game/input'
 import { createGameLoop } from '../game/loop'
-import { INTERNAL_HEIGHT, INTERNAL_WIDTH, render } from '../game/render'
+import { stepPlayer, type PlayerState } from '../game/movement'
+import {
+  INTERNAL_HEIGHT,
+  INTERNAL_WIDTH,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+  render,
+} from '../game/render'
+
+const PLAYER_BOUNDS = {
+  minX: 0,
+  minY: 0,
+  maxX: INTERNAL_WIDTH - PLAYER_WIDTH,
+  maxY: INTERNAL_HEIGHT - PLAYER_HEIGHT,
+}
 
 /**
  * Owns the canvas element and the game loop. The canvas has a fixed internal
@@ -33,13 +48,24 @@ export function GameCanvas() {
     applyIntegerScale()
     window.addEventListener('resize', applyIntegerScale)
 
-    const loop = createGameLoop(() => {
-      render(ctx)
+    let player: PlayerState = {
+      x: (INTERNAL_WIDTH - PLAYER_WIDTH) / 2,
+      y: (INTERNAL_HEIGHT - PLAYER_HEIGHT) / 2,
+      facing: 'down',
+    }
+
+    const input = createKeyboardInput()
+    input.start()
+
+    const loop = createGameLoop((deltaSeconds) => {
+      player = stepPlayer(player, input.snapshot(), deltaSeconds, PLAYER_BOUNDS)
+      render(ctx, player)
     })
     loop.start()
 
     return () => {
       loop.stop()
+      input.stop()
       window.removeEventListener('resize', applyIntegerScale)
     }
   }, [])
