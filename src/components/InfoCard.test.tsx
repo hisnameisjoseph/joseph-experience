@@ -13,13 +13,22 @@ describe('InfoCard', () => {
   })
 
   it('shows title, skill tag, body, and outcome of the active card', () => {
-    useGameStore.getState().openCard('about-me')
+    useGameStore.getState().openCard('fb-timezone')
     render(<InfoCard />)
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'About Joseph' })).toBeInTheDocument()
-    expect(screen.getByText('About Me')).toBeInTheDocument()
-    expect(screen.getByText(/walkable/)).toBeInTheDocument()
-    expect(screen.getByText(/you learned who lives/)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'The Bug That Only Existed at Midnight' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Debugging, AWS Lambda, edge-case thinking')).toBeInTheDocument()
+    expect(screen.getByText(/scheduled AWS Lambda job/)).toBeInTheDocument()
+    expect(screen.getByText(/Streaks counted correctly/)).toBeInTheDocument()
+  })
+
+  it('omits the outcome line for a card with an empty outcome', () => {
+    useGameStore.getState().openCard('about-me')
+    render(<InfoCard />)
+    expect(screen.getByRole('heading', { name: 'About Me' })).toBeInTheDocument()
+    expect(screen.queryByText(/Outcome:/)).not.toBeInTheDocument()
   })
 
   it('pauses the game while open', () => {

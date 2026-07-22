@@ -41,9 +41,11 @@ export function InfoCard() {
         <h2 id="info-card-title">{card.title}</h2>
         <p className="info-card-skill">{card.skillTag}</p>
         <p>{card.body}</p>
-        <p className="info-card-outcome">
-          <strong>Outcome:</strong> {card.outcome}
-        </p>
+        {card.outcome && (
+          <p className="info-card-outcome">
+            <strong>Outcome:</strong> {card.outcome}
+          </p>
+        )}
       </article>
     </div>
   )
