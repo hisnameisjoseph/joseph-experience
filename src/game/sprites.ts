@@ -57,7 +57,28 @@ export function drawObjectSprite(
     case 'cabinet':
       drawCabinet(ctx, x, y, size)
       break
+    case 'laptop':
+      drawLaptop(ctx, x, y, size)
+      break
   }
+}
+
+/** An open laptop sitting on the desk, screen glowing warm. */
+function drawLaptop(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  _size: number,
+): void {
+  ctx.fillStyle = '#c9c4bb'
+  ctx.fillRect(x + 3, y + 10, 11, 3) // keyboard base
+  ctx.fillStyle = '#8a8078'
+  ctx.fillRect(x + 4, y + 3, 9, 7) // screen lid
+  ctx.fillStyle = '#20303e'
+  ctx.fillRect(x + 5, y + 4, 7, 5) // screen
+  ctx.fillStyle = '#f0b45a'
+  ctx.fillRect(x + 6, y + 5, 5, 1) // warm glow
+  ctx.fillRect(x + 6, y + 7, 3, 1)
 }
 
 /** A 2x2 wall of clock faces; the top-right one flashes red. */

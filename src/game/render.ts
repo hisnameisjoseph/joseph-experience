@@ -38,6 +38,8 @@ export interface Scene {
   fadeAlpha: number
   /** Elapsed seconds, for animated sprites (e.g. the flashing clock). */
   timeSeconds: number
+  /** Transient centered message (e.g. "Coming soon"), or null. */
+  toast: string | null
 }
 
 export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
@@ -98,6 +100,10 @@ export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
     drawHint(ctx, scene.hint, scene.tileSize)
   }
 
+  if (scene.toast) {
+    drawToast(ctx, scene.toast)
+  }
+
   if (scene.fadeAlpha > 0) {
     ctx.globalAlpha = Math.min(1, scene.fadeAlpha)
     ctx.fillStyle = '#000000'
@@ -114,15 +120,33 @@ function drawHint(
   tileSize: number,
 ): void {
   const text = hint.label ?? 'E'
-  ctx.font = '7px monospace'
-  const width = Math.ceil(ctx.measureText(text).width) + 6
+  ctx.font = '8px monospace'
+  const width = Math.ceil(ctx.measureText(text).width) + 8
   const centerX = hint.gridX * tileSize + tileSize / 2
   const left = Math.min(Math.max(centerX - width / 2, 1), INTERNAL_WIDTH - width - 1)
-  const top = Math.max(1, hint.gridY * tileSize - 11)
+  const top = Math.max(1, hint.gridY * tileSize - 13)
   ctx.fillStyle = HINT_BG
-  ctx.fillRect(left, top, width, 9)
+  ctx.fillRect(left, top, width, 12)
+  ctx.strokeStyle = HINT_TEXT
+  ctx.strokeRect(left + 0.5, top + 0.5, width - 1, 11)
   ctx.fillStyle = HINT_TEXT
   ctx.textAlign = 'left'
-  ctx.textBaseline = 'top'
-  ctx.fillText(text, left + 3, top + 1)
+  ctx.textBaseline = 'middle'
+  ctx.fillText(text, left + 4, top + 6)
+}
+
+/** Centered transient message near the top of the play area. */
+function drawToast(ctx: CanvasRenderingContext2D, text: string): void {
+  ctx.font = '8px monospace'
+  const width = Math.ceil(ctx.measureText(text).width) + 12
+  const left = Math.round((INTERNAL_WIDTH - width) / 2)
+  const top = 28
+  ctx.fillStyle = HINT_BG
+  ctx.fillRect(left, top, width, 14)
+  ctx.strokeStyle = HINT_TEXT
+  ctx.strokeRect(left + 0.5, top + 0.5, width - 1, 13)
+  ctx.fillStyle = HINT_TEXT
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(text, INTERNAL_WIDTH / 2, top + 7)
 }

@@ -10,6 +10,8 @@ export const TILE_DESK: TileId = 3
 export const TILE_SERVER_RACK: TileId = 4
 /** Solid base an interactable prop stands on; usually hidden by its sprite. */
 export const TILE_PROP: TileId = 5
+/** Decorative floor accent (e.g. a rug); walkable. */
+export const TILE_RUG: TileId = 6
 
 export interface TileDef {
   color: string
@@ -25,6 +27,7 @@ export const TILES: Readonly<Record<number, TileDef>> = {
   [TILE_DESK]: { color: '#9b7e4e', walkable: false },
   [TILE_SERVER_RACK]: { color: '#1c2f4a', walkable: false },
   [TILE_PROP]: { color: '#0e1a2b', walkable: false },
+  [TILE_RUG]: { color: '#9c4038', walkable: true },
 }
 
 export function isWalkableTile(id: TileId): boolean {

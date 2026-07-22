@@ -27,7 +27,7 @@ interface RoomObjectBase extends GridPosition {
 }
 
 /** Visual for an interactable, drawn by the render layer as simple shapes. */
-export type ObjectSprite = 'clocks' | 'terminal' | 'robot' | 'cabinet'
+export type ObjectSprite = 'clocks' | 'terminal' | 'robot' | 'cabinet' | 'laptop'
 
 /** An object the player interacts with to open an info card. */
 export interface CardObject extends RoomObjectBase {

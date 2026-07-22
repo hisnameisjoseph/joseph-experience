@@ -32,6 +32,9 @@ const paletteFor = (room: RoomData): Record<number, string> => ({
   ...(room.palette ?? {}),
 })
 
+/** How long the "coming soon" message stays on screen, in seconds. */
+const TOAST_SECONDS = 1.6
+
 const spriteObjectsOf = (room: RoomData): RenderObject[] =>
   room.objects.flatMap((o) =>
     o.kind === 'card' && o.sprite
@@ -82,11 +85,16 @@ export function GameCanvas({ input }: { input: GameInput }) {
     let colors = paletteFor(room)
     let sprites = spriteObjectsOf(room)
     let elapsed = 0
+    let toast: { text: string; remaining: number } | null = null
 
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
       elapsed += deltaSeconds
+      if (toast) {
+        toast.remaining -= deltaSeconds
+        if (toast.remaining <= 0) toast = null
+      }
       const store = useGameStore.getState()
       let hint: { gridX: number; gridY: number; label?: string } | null = null
 
@@ -129,9 +137,16 @@ export function GameCanvas({ input }: { input: GameInput }) {
         if (target?.kind === 'card') {
           hint = { gridX: target.gridX, gridY: target.gridY }
           if (input.consumeInteract()) store.openCard(target.cardId)
-        } else if (target?.kind === 'door' && getRoom(target.doorTarget)) {
+        } else if (target?.kind === 'door') {
+          // Every door shows its plaque; only built rooms transition.
           hint = { gridX: target.gridX, gridY: target.gridY, label: target.label }
-          if (input.consumeInteract()) transition = startTransition(target.doorTarget)
+          if (input.consumeInteract()) {
+            if (getRoom(target.doorTarget)) {
+              transition = startTransition(target.doorTarget)
+            } else {
+              toast = { text: 'Coming soon', remaining: TOAST_SECONDS }
+            }
+          }
         } else {
           input.consumeInteract()
         }
@@ -146,6 +161,7 @@ export function GameCanvas({ input }: { input: GameInput }) {
         hint,
         fadeAlpha: transition.alpha,
         timeSeconds: elapsed,
+        toast: toast?.text ?? null,
       })
     })
     loop.start()
