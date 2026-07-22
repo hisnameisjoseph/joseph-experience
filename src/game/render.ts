@@ -1,6 +1,9 @@
-// The only module that touches the canvas context.
-import type { TileId } from '../content/types'
+// Render layer entry point (see also sprites.ts). Only this layer touches the
+// canvas context; game logic never does.
+import { TILE_SERVER_RACK } from '../content/tiles'
+import type { ObjectSprite, TileId } from '../content/types'
 import type { PlayerState } from './movement'
+import { drawObjectSprite, drawServerRack } from './sprites'
 
 export const INTERNAL_WIDTH = 400
 export const INTERNAL_HEIGHT = 225
@@ -16,15 +19,25 @@ const FACING_THICKNESS = 3
 const HINT_BG = '#12101a'
 const HINT_TEXT = '#f2f0f7'
 
+export interface RenderObject {
+  gridX: number
+  gridY: number
+  sprite: ObjectSprite
+}
+
 export interface Scene {
   tiles: readonly (readonly TileId[])[]
   tileSize: number
   tileColors: Readonly<Record<number, string>>
+  /** Sprite objects to draw on top of the tiles. */
+  objects: readonly RenderObject[]
   player: PlayerState
   /** Interactable the player faces, if any; label for door plaques. */
   hint: { gridX: number; gridY: number; label?: string } | null
   /** Black overlay opacity for room transitions, 0..1. */
   fadeAlpha: number
+  /** Elapsed seconds, for animated sprites (e.g. the flashing clock). */
+  timeSeconds: number
 }
 
 export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
@@ -36,9 +49,26 @@ export function render(ctx: CanvasRenderingContext2D, scene: Scene): void {
   const { tiles, tileSize, tileColors } = scene
   for (let row = 0; row < tiles.length; row++) {
     for (let col = 0; col < tiles[row].length; col++) {
-      ctx.fillStyle = tileColors[tiles[row][col]] ?? BACKGROUND_COLOR
-      ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize)
+      const id = tiles[row][col]
+      const color = tileColors[id] ?? BACKGROUND_COLOR
+      if (id === TILE_SERVER_RACK) {
+        drawServerRack(ctx, col * tileSize, row * tileSize, tileSize, color)
+      } else {
+        ctx.fillStyle = color
+        ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize)
+      }
     }
+  }
+
+  for (const obj of scene.objects) {
+    drawObjectSprite(
+      ctx,
+      obj.sprite,
+      obj.gridX * tileSize,
+      obj.gridY * tileSize,
+      tileSize,
+      scene.timeSeconds,
+    )
   }
 
   // Floor to the pixel grid so edges stay crisp when upscaled.

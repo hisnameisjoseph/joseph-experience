@@ -26,10 +26,15 @@ interface RoomObjectBase extends GridPosition {
   id: string
 }
 
+/** Visual for an interactable, drawn by the render layer as simple shapes. */
+export type ObjectSprite = 'clocks' | 'terminal' | 'robot' | 'cabinet'
+
 /** An object the player interacts with to open an info card. */
 export interface CardObject extends RoomObjectBase {
   kind: 'card'
   cardId: InfoCard['id']
+  /** Which sprite to draw; when absent the underlying tile shows through. */
+  sprite?: ObjectSprite
 }
 
 /** A door that transitions the player to another room. */
@@ -50,4 +55,7 @@ export interface RoomData {
   spawn: GridPosition
   /** Interactable objects and doors, all placed on the tile grid. */
   objects: RoomObject[]
+  /** Per-room tile colors, overriding the defaults so each room has its own
+   * palette. Keyed by TileId. */
+  palette?: Readonly<Record<number, string>>
 }

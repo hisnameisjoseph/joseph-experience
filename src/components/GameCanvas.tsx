@@ -20,11 +20,24 @@ import {
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
   render,
+  type RenderObject,
 } from '../game/render'
 
-const TILE_COLORS = Object.fromEntries(
+const DEFAULT_TILE_COLORS = Object.fromEntries(
   Object.entries(TILES).map(([id, def]) => [id, def.color]),
 )
+
+const paletteFor = (room: RoomData): Record<number, string> => ({
+  ...DEFAULT_TILE_COLORS,
+  ...(room.palette ?? {}),
+})
+
+const spriteObjectsOf = (room: RoomData): RenderObject[] =>
+  room.objects.flatMap((o) =>
+    o.kind === 'card' && o.sprite
+      ? [{ gridX: o.gridX, gridY: o.gridY, sprite: o.sprite }]
+      : [],
+  )
 
 /**
  * Owns the canvas element and the game loop. The canvas has a fixed internal
@@ -66,10 +79,14 @@ export function GameCanvas({ input }: { input: GameInput }) {
     let room = getRoom(useGameStore.getState().currentRoomId) ?? hubRoom
     let player = spawnPlayer(room)
     let transition: TransitionState = IDLE_TRANSITION
+    let colors = paletteFor(room)
+    let sprites = spriteObjectsOf(room)
+    let elapsed = 0
 
     input.start()
 
     const loop = createGameLoop((deltaSeconds) => {
+      elapsed += deltaSeconds
       const store = useGameStore.getState()
       let hint: { gridX: number; gridY: number; label?: string } | null = null
 
@@ -83,6 +100,8 @@ export function GameCanvas({ input }: { input: GameInput }) {
           if (next) {
             room = next
             player = spawnPlayer(next)
+            colors = paletteFor(next)
+            sprites = spriteObjectsOf(next)
             store.setRoom(result.roomChange)
           }
         }
@@ -121,10 +140,12 @@ export function GameCanvas({ input }: { input: GameInput }) {
       render(ctx, {
         tiles: room.tiles,
         tileSize: TILE_SIZE,
-        tileColors: TILE_COLORS,
+        tileColors: colors,
+        objects: sprites,
         player,
         hint,
         fadeAlpha: transition.alpha,
+        timeSeconds: elapsed,
       })
     })
     loop.start()
