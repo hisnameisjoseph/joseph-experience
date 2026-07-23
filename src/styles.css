@@ -10,6 +10,150 @@ body,
   height: 100%;
 }
 
+/* Start screen and Recruiter Mode: pixel-flavoured, monospace, dark. */
+.start-screen,
+.recruiter-mode {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 24px;
+  background: #0b0b12;
+  color: #f2f0f7;
+  font-family: 'Courier New', ui-monospace, monospace;
+}
+
+/* margin:auto centers the panel when it fits and keeps the top reachable
+ * (scrollable) when it is taller than the viewport — unlike align-items. */
+.start-panel,
+.recruiter-panel {
+  margin: auto;
+  width: 100%;
+  max-width: 30rem;
+  border: 2px solid #5ee9f2;
+  border-radius: 8px;
+  background: #12101a;
+  padding: 28px 28px 32px;
+}
+
+.start-eyebrow {
+  margin: 0 0 4px;
+  color: #5ee9f2;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.start-title {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.start-name {
+  margin: 6px 0 16px;
+  color: #d0a24a;
+  font-size: 16px;
+}
+
+.start-pitch {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.start-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin-bottom: 28px;
+  padding: 16px;
+  border: 1px solid #2b2436;
+  border-radius: 6px;
+  background: #191627;
+}
+
+.start-controls-col {
+  flex: 1 1 12rem;
+}
+
+.start-controls h2 {
+  margin: 0 0 8px;
+  color: #5ee9f2;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.start-controls ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.key {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid #3d3450;
+  border-radius: 4px;
+  background: #2b2436;
+  font-size: 13px;
+}
+
+.start-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.start-btn {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.start-btn-primary {
+  border: none;
+  background: #5ee9f2;
+  color: #0b0b12;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.start-btn-primary:hover,
+.start-btn-primary:focus-visible {
+  background: #8af3fa;
+}
+
+.start-btn-secondary {
+  border: 2px solid #d0a24a;
+  background: transparent;
+  color: #f0c477;
+}
+
+.start-btn-secondary:hover,
+.start-btn-secondary:focus-visible {
+  background: rgba(208, 162, 74, 0.16);
+}
+
+.recruiter-panel h1 {
+  margin: 0 0 12px;
+  color: #5ee9f2;
+}
+
+.recruiter-panel p {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
 /* Letterbox: fills the window; the canvas centers inside it. */
 .game-viewport {
   position: fixed;
